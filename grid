@@ -1,0 +1,376 @@
+Ext.define('Jpmc.test.view.JpmcGrid', {
+    extend: 'Ext.grid.Panel',
+    xtype: 'jpmcgrid',
+    layout: 'fit',
+    config: {
+        title: 'Client Details',
+        columnLines: true,
+        cls: 'jpmc-locked-grid'
+    },
+    requires: ['Ext.grid.*',
+        'Ext.data.*',
+        'Ext.util.*',
+        'Ext.form.*'
+    ],
+    viewConfig: {
+        stripeRows: true
+    },
+    constructor: function(config) {
+        var cfg = config || {};
+        this.initConfig(cfg);
+        this.callParent([cfg]);
+    },
+    initComponent: function() {
+        var me = this,
+            cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+                clicksToEdit: 1
+            });
+        this.ftype = Ext.create('Ext.grid.feature.Summary', {
+            dock: 'bottom'
+        });
+        Ext.apply(this, {
+            plugins: [
+                cellEditing
+            ],
+            features: [this.ftype],
+            // listeners: {
+            //     'cellclick' : function () {
+            //         alert('clicked');
+            //     }
+            // },
+            columns: [{
+                    xtype: 'rownumberer',
+                    summaryRenderer: Ext.Function.bind(this.getSummaryData, this, [false], false)
+
+                }, {
+                    text: 'Party Name',
+                    locked: true,
+                    draggable: false,
+                    width: 150,
+                    lockable: false,
+                    dataIndex: 'partyName',
+                    summaryRenderer: Ext.Function.bind(this.getSummaryData, this, [false], false)
+
+                }, {
+                    text: 'Party ID',
+                    locked: true,
+                    draggable: false,
+                    width: 100,
+                    lockable: false,
+                    dataIndex: 'partyId',
+                    summaryRenderer: Ext.Function.bind(this.getSummaryData, this, [false], false)
+
+                }, {
+                    text: 'Account No',
+                    locked: true,
+                    draggable: false,
+                    lockable: false,
+                    width: 200,
+                    dataIndex: 'accountAssociated',
+                    summaryRenderer: Ext.Function.bind(this.getSummaryData, this, [false], false)
+
+                }, {
+                    text: 'Party Role',
+                    locked: true,
+                    draggable: false,
+                    lockable: false,
+                    width: 150,
+                    dataIndex: 'roleType',
+                    summaryRenderer: this.getSummaryData
+                },
+                //  {
+                //     xtype: 'datecolumn',
+                //     lockable: false,
+                //     text: 'Purchase Date (MM-DD-YYYY)',
+                //     flex: 1,
+                //     minWidth: 100,
+                //     format: 'm-d-Y',
+                //     dataIndex: 'lastDate',
+                //     summaryRenderer: Ext.Function.bind(this.getSummaryData, this, [false], false),
+                //     editor: {
+                //         xtype: 'datefield',
+                //         format: 'm-d-y',
+                //         minValue: '01/01/06',
+                //         disabledDays: [0, 6],
+                //         disabledDaysText: 'Products are not available on the weekends'
+                //     }
+                // }, 
+                {
+                    text: 'Singapore',
+                    lockable: false,
+                    hidden: true,
+                    flex: 1,
+                    minWidth: 100,
+                    dataIndex: 'country1',
+                    align: 'center',
+                    renderer: this.formatValue,
+                    summaryRenderer: this.getSummaryData,
+                    editor: Ext.apply({}, this.getDropDown())
+                }, {
+                    text: 'Philippines',
+                    lockable: false,
+                    hidden: true,
+                    flex: 1,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country2',
+                    renderer: this.formatValue,
+                    summaryRenderer: this.getSummaryData,
+                    editor: Ext.apply({}, this.getDropDown())
+
+                }, {
+                    text: 'Brunei',
+                    lockable: false,
+                    hidden: true,
+                    flex: 1,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country3',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                }, {
+                    text: 'Israel',
+                    lockable: false,
+                    hidden: true,
+                    flex: 1,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country4',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                }, {
+                    text: 'Russia',
+                    lockable: false,
+                    hidden: true,
+                    flex: 1,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country5',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                }, {
+                    text: 'Hong Kong',
+                    lockable: false,
+                    hidden: true,
+                    flex: 1,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country6',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                }, {
+                    text: 'Australia',
+                    lockable: false,
+                    flex: 1,
+                    hidden: true,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country7',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                }, {
+                    text: 'United Kingdom',
+                    lockable: false,
+                    flex: 1,
+                    hidden: true,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country8',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                }, {
+                    text: 'Mexico',
+                    lockable: false,
+                    flex: 1,
+                    align: 'center',
+                    minWidth: 100,
+                    hidden: true,
+                    dataIndex: 'country9',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                }, {
+                    text: 'Peru',
+                    lockable: false,
+                    hidden: true,
+                    flex: 1,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country10',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                }, {
+                    text: 'Canada',
+                    lockable: false,
+                    hidden: true,
+                    flex: 1,
+                    align: 'center',
+                    minWidth: 100,
+                    dataIndex: 'country11',
+                    renderer: this.formatValue,
+                    editor: Ext.apply({}, this.getDropDown()),
+                    summaryRenderer: this.getSummaryData
+
+                },
+                // , {
+                //     text: 'Kenya',
+                //     lockable: false,
+                //     flex: 1,
+                //     hidden: true,
+                //     align: 'center',
+                //     minWidth: 100,
+                //     dataIndex: 'country12',
+                //     renderer: this.formatValue,
+                //     editor: Ext.apply({}, this.getDropDown()),
+                //     summaryRenderer: this.getSummaryData
+
+                // }, 
+                {
+                    xtype: 'checkcolumn',
+                    header: 'Stop System Logic',
+                    dataIndex: 'ssLogic',
+                    width: 65,
+                    summaryRenderer: me.getSummaryData
+                }
+            ],
+            dockedItems: [{
+                xtype: 'toolbar',
+                ui: 'footer',
+                dock: 'bottom',
+                layout: {
+                    pack: 'end'
+                },
+                defaults: {
+                    xtype: 'button',
+                    width: 100
+
+                },
+                items: [
+                    // {
+                    //     text: 'Add New',
+                    //     tooltip: 'Add a new row',
+                    //     iconCls: 'add',
+                    //     itemId: 'btnAddNew'
+                    // }, 
+                    {
+                        text: 'Submit',
+                        itemId: 'btnSubmit'
+                    }, {
+                        text: 'Cancel'
+                        //iconCls: 'remove'
+                    }
+                ]
+            }, {
+                xtype: 'toolbar',
+                dock: 'top',
+                layout: {
+                    pack: 'start'
+                },
+                defaults: {
+                    xtype: 'button',
+                    width: 200
+                },
+                items: [{
+                    xtype: 'component',
+                    html: '&nbsp;&nbsp;S.P No: 1234567'
+                }, '->', {
+                    xtype: 'checkboxfield',
+                    boxLabel: 'Show All',
+                    width: 80,
+                    itemId: 'showAll'
+                }]
+            }]
+        });
+        this.relayEvents(this.getStore(), ['load']);
+        this.callParent(arguments);
+    },
+
+    formatValue: function(val, metaData, d) {
+        metaData.tdCls = '';
+        if (val == 'Y') {
+            metaData.tdCls = 'gray';
+            return 'Yes';
+        }
+        return 'No';
+    },
+    getDropDown: function(x, y, z) {
+        return {
+            xtype: 'combobox',
+            forceSelection: true,
+            editable: false,
+            triggerAction: 'all',
+            allowBlank: false,
+            store: [
+                ['Y', 'Yes'],
+                ['N', 'No']
+            ]
+        };
+    },
+    getSummaryData: function(val, metaData, data, hasEmpty) {
+        // return '<table class="summary-table" cellpadding="0" cellspacing="0">sdfdfs<tbody></tbody></table>';
+        var summaryTable = '',
+            dataIndex, store = Ext.getStore('productStore'),
+            cls = '',
+            type, rec;
+
+        if (metaData) {
+            metaData.tdCls = 'main-td';
+            dataIndex = metaData.column.dataIndex;
+        }
+        if (store.summaryRecords && Ext.isArray(store.summaryRecords) && store.summaryRecords.length) {
+            summaryTable = '<table class="summary-table" cellpadding="0" cellspacing="0"><tbody>';
+            for (var i = 0; i < store.summaryRecords.length; i++) {
+                cls = '';
+                rec = store.summaryRecords[i];
+                val = Ext.isDefined(rec.data[dataIndex]) ? rec.data[dataIndex] : '&nbsp;';
+                type = rec && rec.get('shortName');
+
+                if (val === 'Y') {
+                    val = 'Yes';
+                    cls = 'yes-color';
+                } else if (val === 'N') {
+                    val = 'No';
+                }
+                if (dataIndex === 'ssLogic' && (type === 'ER' || type === 'EF' || type === 'SSL')) {
+                    val = '&nbsp;';
+                    cls = "";
+                }
+                if (type === 'EF' && val === 'No') {
+                    cls = "yes-color-red";
+                } else if (type === 'blank') {
+                    val = '&nbsp;';
+                    cls = "";
+                } else if (type === 'SSL') {
+                    cls = "";
+                }
+                // console.log(dataIndex, val);
+                if ((dataIndex === 'ssLogic' && val === true) || (type === 'SSL' && val === 'Yes')) {
+                    val = '<img class="x-grid-checkcolumn x-grid-checkcolumn-checked" src="data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">';
+                    cls += ' summary-check';
+                } else if ((dataIndex === 'ssLogic' && val === false) || (type === 'SSL' && val === 'No')) {
+                    cls += ' summary-check';
+                    val = '<img class="x-grid-checkcolumn" src="data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">';
+                }
+                summaryTable += '<tr class="x-grid-row-summary"><td class="summary-td ' + cls + '" recid ="' + rec.id + '" dataindex="' + dataIndex + '"><div class="x-grid-cell-inner">' + val + '</div></td></tr>';
+            }
+            summaryTable += '</tbody></table>';
+        }
+        // console.log(summaryTable);
+        return summaryTable;
+    }
+});
