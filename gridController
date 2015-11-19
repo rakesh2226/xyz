@@ -1,0 +1,278 @@
+Ext.define('Jpmc.test.controller.JpmcGrid', {
+    extend: 'Ext.app.Controller',
+    models: ['Jpmc.test.model.Product'],
+    views: ['Jpmc.test.view.JpmcGrid'],
+    requires: ['Jpmc.test.store.ProductStore', 'Jpmc.test.utils.UIConstants'],
+    refs: [{
+        ref: 'myGrid',
+        selector: 'viewport #myGrid'
+    }],
+
+    init: function() {
+        Ext.create('Jpmc.test.store.ProductStore');
+        this.control({
+
+            // 'viewport #myGrid button[itemId=btnAddNew]': {
+            //     click: this.onAddClick
+            // },
+            'viewport #myGrid': {
+                afterrender: this.onGridRender
+            },
+            'viewport #showAll': {
+                change: this.onShowAllClick
+            },
+            'viewport #btnSubmit': {
+                click: this.onSubmitClick
+            }
+        });
+    },
+    // onAddClick: function() {
+    //     // Create a model instance
+    //     var me = this,
+    //         rec = new Jpmc.test.store.ProductStore(),
+    //         myGrid = me.getMyGrid();
+    //     debugger;
+    //     myGrid.getStore().insert(0, rec);
+    //     myGrid.cellEditing.startEditByPosition({
+    //         row: 0,
+    //         column: 0
+    //     });
+    // },
+
+    onGridRender: function(grid) {
+        var me = this,
+            store = grid.getStore();
+        store.on('load', me.onStoreLoad, me, {
+            single: true
+        });
+        store.load();
+        debugger;
+        var handleClick = function(a, b) {
+            debugger;
+            var el = a.getTarget('.summary-td'),
+                recId, rec, val, type;
+            if (el) {
+                recId = el.getAttribute('recid');
+                dataIndex = el.getAttribute('dataindex');
+                rec = me.getSummaryRec(recId);
+                if (rec) {
+                    val = rec.get(dataIndex);
+                    type = rec.get('shortName');
+                }
+
+                if (type !== 'blank' && !(dataIndex === 'ssLogic' && (type === 'ER' || type === 'EF' || type === 'SSL'))) {
+                    editor = me.getEditor(dataIndex, type, recId);
+                    editor.field.width = el.clientWidth - 5;
+                    if (editor.field.xtype === 'checkboxfield') {
+                        val = (val === true || val === 'Y') ? false : true;
+                    }
+                    editor.startEdit(el, val);
+                }
+
+                // rec && editor.setValue(rec.get(dataIndex));
+            }
+        };
+        //grid.getView().lockedView.features[0].summaryBar.el.on('click', handleClick);
+        Ext.Function.defer(function() {
+            grid.getView().normalView.features[0].summaryBar.el.on('click', handleClick, me);
+        }, 100, me);
+    },
+
+    getEditor: function(dataIndex, type, recId) {
+        var me = this,
+            editor = {
+                updateEl: true, // update the innerHTML of the bound element when editing completes
+                listeners: {
+                    'complete': function(editor) {
+                        var val = editor.getValue(),
+                            dataIndex, id, el = editor.boundEl.el;
+                        if (editor.field.xtype === 'combobox') {
+                            val = editor.field.getDisplayValue();
+                        } else if (editor.field.xtype === 'checkboxfield') {
+                            if (val) {
+                                val = '<img class="x-grid-checkcolumn x-grid-checkcolumn-checked" src="data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">';
+                            } else {
+                                val = '<img class="x-grid-checkcolumn" src="data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">';
+                            }
+                            // ensure that model rec update
+                            dataIndex = el.getAttribute('dataindex');
+                            id = el.getAttribute('recid');
+                            me.onValueChange(editor.field, dataIndex, id);
+                        }
+                        el.dom.innerHTML = '<div class="x-grid-cell-inner">' + val + '</div>';
+                    }
+                }
+            };
+        if (dataIndex === 'ssLogic' || type === 'SSL') {
+            editor.field = {
+                xtype: 'checkboxfield',
+                cls: 'checkbox-editor',
+                inputValue: true,
+                listeners: {
+                    'change': Ext.Function.bind(function(comp, x, y, z, dataIndex, id) {
+                        me.onValueChange(comp, dataIndex, id);
+                    }, me, [dataIndex, recId], true)
+                }
+            }
+        } else {
+            editor.field = {
+                xtype: 'combobox',
+                forceSelection: true,
+                editable: false,
+                triggerAction: 'all',
+                allowBlank: false,
+                store: [
+                    ['Y', 'Yes'],
+                    ['N', 'No']
+                ],
+                listeners: {
+                    'select': Ext.Function.bind(function(comp, x, y, dataIndex, id) {
+                        me.onValueChange(comp, dataIndex, id);
+                    }, me, [dataIndex, recId], true)
+                }
+            };
+        }
+        return (new Ext.Editor(editor));
+    },
+
+    onValueChange: function(comp, dataIndex, id) {
+        debugger;
+        var me = this,
+            val = comp.getValue(),
+            rec = me.getSummaryRec(id),
+            editor = comp.up('editor');
+        if (rec) {
+            if (rec.get('shortName') === 'SSL') {
+                val = (val === true) ? 'Y' : 'N';
+            }
+            rec.set(dataIndex, val);
+            if (val === 'N' && editor && editor.field.xtype !== 'checkboxfield') {
+                editor.boundEl.dom.classList.remove('yes-color');
+            } else if (val === 'Y' && editor && editor.field.xtype !== 'checkboxfield') {
+                editor.boundEl.dom.classList.add('yes-color');
+            }
+        }
+
+
+    },
+
+    onStoreLoad: function(store, records, success) {
+        debugger;
+        var me = this,
+            countryFields = UIConstants.countryFields;
+            myGrid = me.getMyGrid();
+        myGrid.colStatusObj = {};
+        //gridColumns = me.getMyGrid().columns;
+        if (success && Ext.isArray(records) && records.length) {
+
+            Ext.Array.each(countryFields, function(field) {
+                myGrid.colStatusObj[field] = false;
+                if (Ext.Array.pluck(Ext.Array.pluck(records, 'data'), field).indexOf('Y') !== -1) {
+                    myGrid.colStatusObj[field] = true;
+                }
+            }, me);
+            // create summary records
+            me.createSummaryRecords(store);
+        }
+        me.showHideCols();
+
+    },
+
+    onShowAllClick: function(com, newVal) {
+        var me = this,
+            gridColumns = me.getMyGrid().columns;
+        debugger;
+        me.showHideCols(newVal);
+
+    },
+
+    showHideCols: function(showAll) {
+        var me = this,
+            grid = me.getMyGrid(),
+            gridColumns = grid.columns;
+
+        if (Ext.Object.getSize(grid.colStatusObj)) {
+            Ext.Array.each(gridColumns, function(col) {
+                var field = col['dataIndex'];
+                if (Ext.isDefined(grid.colStatusObj[field])) {
+                    col[(grid.colStatusObj[field] || showAll) ? 'show' : 'hide']();
+                }
+            }, me);
+        }
+
+    },
+
+    createSummaryRecords: function(store) {
+        var me = this,
+            rawData = store.proxy.reader.rawData.summaryData,
+            records = [];
+        if (Ext.isDefined(rawData) && Ext.isArray(rawData) && rawData.length) {
+            Ext.Array.each(rawData, function(obj) {
+                records.push(Ext.create('Jpmc.test.model.Product', obj));
+            }, me);
+        }
+        store.summaryRecords = records;
+    },
+
+    getSummaryRec: function(id) {
+        var me = this,
+            store = Ext.getStore('productStore'),
+            records = store.summaryRecords,
+            rec;
+        if (records && Ext.isArray(records) && records.length) {
+            for (var i = 0; i < records.length; i++) {
+                if (id == records[i].id) {
+                    rec = records[i];
+                    break;
+                }
+            }
+        }
+        return rec;
+    },
+
+    onSubmitClick: function() {
+        var me = this,
+            store = Ext.getStore('productStore'),
+            updatedRecords = store.getUpdatedRecords(),
+            requestPayload;
+        debugger;
+        if (store.summaryRecords && Ext.isArray(store.summaryRecords) && store.summaryRecords.length) {
+            updatedRecords = Ext.Array.merge(updatedRecords, Ext.Array.filter(store.summaryRecords, function(item) {
+                return item.dirty === true && item.isValid();
+            }, store));
+        }
+        requestPayload = JSON.stringify(Ext.Array.pluck(updatedRecords, 'data'));
+        Ext.Array.each(updatedRecords, function(rec) {
+            rec.commit();
+        });
+        Ext.create('Ext.panel.Panel', {
+            title: 'Updated Records',
+            width: 250,
+            height: 250,
+            autoScroll: true,
+            layout: 'fit',
+            dockedItems: [{
+                xtype: 'toolbar',
+                dock: 'bottom',
+                buttonAlign: 'center',
+                items: [{
+                    text: 'Close',
+                    width: 100,
+                    handler: function(comp) {
+                        comp.up('panel').hide();
+                    }
+                }]
+            }],
+            html: requestPayload,
+            floating: true
+        }).show();
+        // Ext.MessageBox.show({
+        //     msg: requestPayload,
+        //     title: 'Updated Records',
+        //     buttons: Ext.Msg.OK,
+        //     icon: Ext.Msg.QUESTION,
+        //     autoScroll : true
+        // });
+    }
+
+});
