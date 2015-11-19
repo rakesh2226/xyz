@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>First ExtJS 4 Application</title>
+    <link rel="stylesheet" type="text/css" href="resources/css/ext-all.css"/>
+    <script type="text/javascript" src="sdk/ext-all-debug.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+    <style>
+      /*.jpmc-locked-grid .x-panel-body{
+        margin-bottom: -2px;
+      }*/
+      .gray {
+      	background-color: #BFF1B9 !important;
+      }
+      body {
+      	padding:2% !important;
+      }
+      .summary-table {
+        width:100%;
+      }
+      .summary-table .summary-td {
+
+            border-bottom-style: dotted;
+            border-bottom-color: #ddd;
+            border-bottom-width: 1px;
+      }
+      .summary-table .summary-td .x-grid-cell-inner {
+        font-size:11px;
+        line-height: 13px;  
+      }
+      .summary-table .summary-td.yes-color {
+          background-color: #BFF1B9 !important;
+      }
+      .summary-table .summary-td.yes-color-red {
+          background-color: #FB7D7D !important; 
+      }
+      
+      .checkbox-editor {
+        text-align: center;
+      }
+      .x-docked-summary-bottom .x-grid-cell-inner {
+        padding: 0px;
+      }
+      .x-docked-summary-bottom .summary-table .summary-td > div {
+        padding: 3px 6px 4px 6px !important;
+      }
+      .x-docked-summary-bottom .summary-table .summary-check > div {
+        padding: 4px 6px 3px 6px !important;
+        line-height: 0 !important;
+        font-size: 0 !important;
+      }
+  
+      /*.x-docked-summary-bottom .x-grid-cell-checkcolumn .summary-td > div {
+        padding: 4px 6px 3px 6px !important;
+        line-height: 0 !important;
+        font-size: 0 !important;
+      }*/
+      /*.summary-table .x-grid-checkcolumn {
+        width:10px !important;
+        height: 10px !important;
+      }*/
+    </style>
+    <script>
+      if (!Array.prototype.indexOf) {
+          Array.prototype.indexOf = function(elt /*, from*/ ) {
+              var len = this.length >>> 0;
+
+              var from = Number(arguments[1]) || 0;
+              from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+              if (from < 0)
+                  from += len;
+
+              for (; from < len; from++) {
+                  if (from in this &&
+                      this[from] === elt)
+                      return from;
+              }
+              return -1;
+          };
+      }
+    </script>
+</head>
+<body>
+</body>
+</html>
